@@ -15,9 +15,9 @@
         <tagDatabase tag="release-1.0"/>
     </changeSet>
 
-<!--    <include file="/db/changelogs/db.changelog-1.0-sample-data.xml" relativeToChangelogFile="true" />-->
+    <include file="changelogs/db.changelog-1.0-book-data-insertion.xml" relativeToChangelogFile="true" />
 
-<!--    <changeSet id="release-1.0-sample-data-tag" author="Abdurashid Vakhobov">-->
-<!--        <tagDatabase tag="release-1.0-sample-data"/>-->
-<!--    </changeSet>-->
+    <changeSet id="release-1.0-book-data-insertion-tag" author="Abdurashid Vakhobov">
+        <tagDatabase tag="release-1.0-book-data-insertion"/>
+    </changeSet>
 </databaseChangeLog>
