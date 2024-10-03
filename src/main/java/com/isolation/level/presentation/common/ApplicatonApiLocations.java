@@ -6,4 +6,9 @@ public class ApplicatonApiLocations {
      * Path for Book API.
      */
     public static final String BOOK = "/book";
+
+    /**
+     * Path for Book API.
+     */
+    public static final String HISTORY = "/history";
 }
