@@ -9,18 +9,22 @@
         <insert tableName="books">
             <column name="title" value="Crime and Punishment" />
             <column name="author" value="F. Dostoevsky" />
+            <column name="likes" value="0" />
         </insert>
         <insert tableName="books">
             <column name="title" value="Anna Karenina" />
             <column name="author" value="L. Tolstoy" />
+            <column name="likes" value="0" />
         </insert>
         <insert tableName="books">
             <column name="title" value="The Brothers Karamazov" />
             <column name="author" value="F. Dostoevsky" />
+            <column name="likes" value="0" />
         </insert>
         <insert tableName="books">
             <column name="title" value="Dead Souls" />
             <column name="author" value="N. Gogol" />
+            <column name="likes" value="0" />
         </insert>
     </changeSet>
 </databaseChangeLog>

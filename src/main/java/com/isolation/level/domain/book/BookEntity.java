@@ -34,4 +34,10 @@ public class BookEntity {
      */
     @Column(name = "author")
     private String author;
+
+    /**
+     * The book like count.
+     */
+    @Column(name = "likes")
+    private int likes;
 }

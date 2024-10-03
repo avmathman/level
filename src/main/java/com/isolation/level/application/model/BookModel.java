@@ -29,4 +29,9 @@ public class BookModel {
      * The book description.
      */
     private String description;
+
+    /**
+     * The book like count.
+     */
+    private int likes;
 }

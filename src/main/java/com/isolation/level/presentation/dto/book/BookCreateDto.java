@@ -19,4 +19,9 @@ public class BookCreateDto {
      * The book author.
      */
     private String author;
+
+    /**
+     * The book like count.
+     */
+    private int likes;
 }
