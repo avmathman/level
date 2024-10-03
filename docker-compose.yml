@@ -1,0 +1,149 @@
+version: '3'
+
+networks:
+  jpoint_network:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.19.0.0/24
+          gateway: 172.19.0.1
+
+services:
+  isolation-level-app:
+    build:
+      context: .
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/database
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=password
+#      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    depends_on:
+      - postgres
+    networks:
+      - my-network
+
+  zookeeper:
+    profiles: [all]
+    image: confluentinc/cp-zookeeper:7.1.1
+    networks:
+      - jpoint_network
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  broker:
+    profiles: [all]
+    image: confluentinc/cp-server:7.1.1
+    networks:
+      - jpoint_network
+    hostname: broker
+    container_name: broker
+    depends_on:
+      - zookeeper
+    ports:
+      - "9999:9999"
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_JMX_OPTS: -Djava.rmi.server.hostname=broker -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=9999 -Dcom.sun.management.jmxremote.rmi.port=9999 -Dcom.sun.management.jmxremote.local.only=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false
+      KAFKA_JMX_PORT: 9999
+      KAFKA_JMX_HOSTNAME: broker
+      KAFKA_CONFLUENT_SCHEMA_REGISTRY_URL: http://schema-registry:8081
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker:29092
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+      CONFLUENT_METRICS_ENABLE: 'true'
+      CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
+
+  kafka-lag-exporter:
+    profiles: [all]
+    image: seglo/kafka-lag-exporter
+    networks:
+      - jpoint_network
+    hostname: kafka-lag-exporter
+    container_name: kafka-lag-exporter
+    ports:
+      - 8000:8000
+    volumes:
+      - /home/abe/Desktop/Projects/zStorage/lag-exporter/application.conf:/opt/docker/conf/application.conf
+      - /home/abe/Desktop/Projects/zStorage/lag-exporter/logback.xml:/opt/docker/conf/logback.xml
+
+  cadvisor:
+    profiles: [all]
+    image: gcr.io/cadvisor/cadvisor:latest
+    networks:
+      - jpoint_network
+    hostname: cadvisor
+    container_name: cadvisor
+    volumes:
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    ports:
+      - 8001:8080
+
+  prometheus:
+    profiles: [all]
+    image: docker.io/prom/prometheus:latest
+    networks:
+      - jpoint_network
+    hostname: prometheus
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - /home/abe/Desktop/Projects/zStorage/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+
+  grafana:
+    profiles: [all]
+    image: docker.io/grafana/grafana:latest
+    networks:
+      - jpoint_network
+    hostname: grafana
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - /home/abe/Desktop/Projects/zStorage/grafana/storage:/var/lib/grafana
+
+  postgres:
+    profiles: [all, postgres]
+    image: 'postgres:12.10'
+    networks:
+      - jpoint_network
+    hostname: postgres
+    container_name: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: database
+
+  speaker-app:
+    profiles: [all]
+    container_name: speaker-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - jpoint_network
+    hostname: speaker-app
+    ports:
+      - "8080:8080"
