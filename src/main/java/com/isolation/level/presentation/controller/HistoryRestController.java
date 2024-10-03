@@ -4,7 +4,6 @@ import com.isolation.level.application.service.book.BookService;
 import com.isolation.level.application.service.history.HistoryService;
 import com.isolation.level.presentation.common.ApplicatonApiLocations;
 import com.isolation.level.presentation.dto.book.BookCreateDto;
-import com.isolation.level.presentation.dto.book.BookDto;
 import com.isolation.level.presentation.dto.history.HistoryCreateDto;
 import com.isolation.level.presentation.dto.history.HistoryDto;
 import com.isolation.level.presentation.mapper.history.HistoryCreateMapper;
@@ -47,22 +46,73 @@ public class HistoryRestController {
     }
 
     /**
-     * REST API method to create a new book.
+     * REST API method to create a new book with isolation level of READ_COMMITED.
      *
      * @param historyCreateDto - The book {@link BookCreateDto} to create.
      * @return The created book instance.
      */
     @RequestMapping(
-            path = "",
+            path = "/readCommitted",
             method = RequestMethod.POST,
             consumes = MediaType.APPLICATION_JSON_VALUE
     )
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<HistoryDto> createBook(
+    public ResponseEntity<HistoryDto> createBookReadCommitted(
             @RequestBody HistoryCreateDto historyCreateDto
     ) {
-        final HistoryDto bookDto = historyReadMapper.modelToDto(historyService.createHistory(historyCreateMapper.dtoToModel(historyCreateDto)));
+        final HistoryDto bookDto = historyReadMapper.modelToDto(historyService.createHistoryReadCommitted(historyCreateMapper.dtoToModel(historyCreateDto)));
         return new ResponseEntity<>(bookDto, HttpStatus.CREATED);
+    }
+
+    /**
+     * REST API method to create a new book with isolation level of REPEATABLE_READ.
+     *
+     * @param historyCreateDto - The book {@link BookCreateDto} to create.
+     * @return The created book instance.
+     */
+    @RequestMapping(
+            path = "/repeatableRead",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<HistoryDto> createBookRepeatableRead(
+            @RequestBody HistoryCreateDto historyCreateDto
+    ) {
+        final HistoryDto bookDto = historyReadMapper.modelToDto(historyService.createHistoryRepeatableRead(historyCreateMapper.dtoToModel(historyCreateDto)));
+        return new ResponseEntity<>(bookDto, HttpStatus.CREATED);
+    }
+
+    /**
+     * REST API method to create a new book with isolation level of SERIALIZABLE.
+     *
+     * @param historyCreateDto - The book {@link BookCreateDto} to create.
+     * @return The created book instance.
+     */
+    @RequestMapping(
+            path = "/serializable",
+            method = RequestMethod.POST,
+            consumes = MediaType.APPLICATION_JSON_VALUE
+    )
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<HistoryDto> createBookSerializable(
+            @RequestBody HistoryCreateDto historyCreateDto
+    ) {
+        final HistoryDto bookDto = historyReadMapper.modelToDto(historyService.createHistorySerializable(historyCreateMapper.dtoToModel(historyCreateDto)));
+        return new ResponseEntity<>(bookDto, HttpStatus.CREATED);
+    }
+
+    /**
+     * REST API method to delete all history.
+     */
+    @RequestMapping(
+            path = "/clear",
+            method = RequestMethod.DELETE
+    )
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ResponseEntity<Void> deleteAllHistory() {
+        this.historyService.deleteAllHistory();
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     /**

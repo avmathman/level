@@ -8,12 +8,28 @@ import java.util.List;
 public interface HistoryService {
 
     /**
-     * Creates new book.
+     * Creates new book with isolation level of READ_COMMITED.
      *
      * @param historyModel - The book to be created in database.
      * @return New book created in database.
      */
-    HistoryModel createHistory(HistoryModel historyModel);
+    HistoryModel createHistoryReadCommitted(HistoryModel historyModel);
+
+    /**
+     * Creates new book.
+     *
+     * @param historyModel - The book to be created in database with isolation level of REPEATABLE_READ.
+     * @return New book created in database.
+     */
+    HistoryModel createHistoryRepeatableRead(HistoryModel historyModel);
+
+    /**
+     * Creates new book.
+     *
+     * @param historyModel - The book to be created in database with isolation level of SERIALIZABLE.
+     * @return New book created in database.
+     */
+    HistoryModel createHistorySerializable(HistoryModel historyModel);
 
     /**
      * Returns book by its ID if it exists.
@@ -31,4 +47,9 @@ public interface HistoryService {
      * @throws ItemNotFoundException if book with the given id does not exist in database.
      */
     List<HistoryModel> getAllHistory();
+
+    /**
+     * Deletes all history.
+     */
+    void deleteAllHistory();
 }
