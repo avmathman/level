@@ -1,16 +1,17 @@
 version: '3'
 
 networks:
-  jpoint_network:
+  jpoint_level_network:
     driver: bridge
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.19.0.0/24
-          gateway: 172.19.0.1
+#    ipam:
+#      driver: default
+#      config:
+#        - subnet: 172.19.0.0/24
+#          gateway: 172.19.0.1
 
 services:
   isolation-level-app:
+    profiles: [all]
     build:
       context: .
     ports:
@@ -23,13 +24,13 @@ services:
     depends_on:
       - postgres
     networks:
-      - my-network
+      - jpoint_level_network
 
   zookeeper:
     profiles: [all]
     image: confluentinc/cp-zookeeper:7.1.1
     networks:
-      - jpoint_network
+      - jpoint_level_network
     hostname: zookeeper
     container_name: zookeeper
     ports:
@@ -42,7 +43,7 @@ services:
     profiles: [all]
     image: confluentinc/cp-server:7.1.1
     networks:
-      - jpoint_network
+      - jpoint_level_network
     hostname: broker
     container_name: broker
     depends_on:
@@ -75,7 +76,7 @@ services:
     profiles: [all]
     image: seglo/kafka-lag-exporter
     networks:
-      - jpoint_network
+      - jpoint_level_network
     hostname: kafka-lag-exporter
     container_name: kafka-lag-exporter
     ports:
@@ -88,7 +89,7 @@ services:
     profiles: [all]
     image: gcr.io/cadvisor/cadvisor:latest
     networks:
-      - jpoint_network
+      - jpoint_level_network
     hostname: cadvisor
     container_name: cadvisor
     volumes:
@@ -102,7 +103,7 @@ services:
     profiles: [all]
     image: docker.io/prom/prometheus:latest
     networks:
-      - jpoint_network
+      - jpoint_level_network
     hostname: prometheus
     container_name: prometheus
     ports:
@@ -114,7 +115,7 @@ services:
     profiles: [all]
     image: docker.io/grafana/grafana:latest
     networks:
-      - jpoint_network
+      - jpoint_level_network
     hostname: grafana
     container_name: grafana
     ports:
@@ -126,9 +127,9 @@ services:
     profiles: [all, postgres]
     image: 'postgres:12.10'
     networks:
-      - jpoint_network
+      - jpoint_level_network
     hostname: postgres
-    container_name: postgres
+    container_name: postgres-level
     ports:
       - 5432:5432
     environment:
@@ -143,7 +144,7 @@ services:
       context: .
       dockerfile: Dockerfile
     networks:
-      - jpoint_network
+      - jpoint_level_network
     hostname: speaker-app
     ports:
       - "8080:8080"
