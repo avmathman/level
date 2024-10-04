@@ -7,12 +7,14 @@ import com.isolation.level.domain.history.HistoryEntity;
 import com.isolation.level.infrastructure.repository.BookRepository;
 import com.isolation.level.infrastructure.repository.HistoryRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.CannotAcquireLockException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -86,6 +88,7 @@ public class HistoryServiceImpl implements HistoryService {
 
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
+    @Retryable(value = CannotAcquireLockException.class, maxAttempts = 5, backoff=@Backoff(delay = 1000))
     public HistoryModel createHistorySerializable(HistoryModel historyModel) {
         HistoryEntity historyEntity = mapper.modelToEntity(historyModel);
         HistoryEntity createdHistoryEntity = null;
@@ -96,8 +99,12 @@ public class HistoryServiceImpl implements HistoryService {
             historyEntity.setStatus("RECEIVED");
             createdHistoryEntity = repository.save(historyEntity);
 
-            book.setLikes(book.getLikes() + historyModel.getLikes());
-            bookRepository.save(book);
+            try {
+                book.setLikes(book.getLikes() + historyModel.getLikes());
+                bookRepository.save(book);
+            } catch (Exception e) {
+                log.error(e.getMessage());
+            }
 
             log.info("{} likes added to {}", historyModel.getLikes(), book.getAuthor());
         } else {
