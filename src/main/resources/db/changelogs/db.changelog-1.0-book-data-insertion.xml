@@ -7,23 +7,23 @@
         logicalFilePath="/db/changelogs/db.changelog-1.0-book-data-insertion.xml">
     <changeSet id="av/sample-data-books" author="Abdurashid Vakhobov" context="sample-data">
         <insert tableName="books">
-            <column name="title" value="Crime and Punishment" />
-            <column name="author" value="F. Dostoevsky" />
+            <column name="title" value="READ_UNCOMMITTED" />
+            <column name="author" value="Read Uncommitted Isolation" />
             <column name="likes" value="0" />
         </insert>
         <insert tableName="books">
-            <column name="title" value="Anna Karenina" />
-            <column name="author" value="L. Tolstoy" />
+            <column name="title" value="READ_COMMITTED" />
+            <column name="author" value="Read Committed Isolation" />
             <column name="likes" value="0" />
         </insert>
         <insert tableName="books">
-            <column name="title" value="The Brothers Karamazov" />
-            <column name="author" value="F. Dostoevsky" />
+            <column name="title" value="REPEATABLE_READ" />
+            <column name="author" value="Repeatable Read Isolation" />
             <column name="likes" value="0" />
         </insert>
         <insert tableName="books">
-            <column name="title" value="Dead Souls" />
-            <column name="author" value="N. Gogol" />
+            <column name="title" value="SERIALIZABLE" />
+            <column name="author" value="Serializable Isolation" />
             <column name="likes" value="0" />
         </insert>
     </changeSet>

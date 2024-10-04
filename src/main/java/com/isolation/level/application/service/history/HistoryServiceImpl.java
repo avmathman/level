@@ -40,7 +40,7 @@ public class HistoryServiceImpl implements HistoryService {
 
         BookEntity book = bookRepository.findByTitle(historyModel.getTitle()).orElse(null);
 
-        if (book == null) {
+        if (book != null) {
             historyEntity.setStatus("RECEIVED");
             createdHistoryEntity = repository.save(historyEntity);
 
@@ -66,7 +66,7 @@ public class HistoryServiceImpl implements HistoryService {
 
         BookEntity book = bookRepository.findByTitle(historyModel.getTitle()).orElse(null);
 
-        if (book == null) {
+        if (book != null) {
             historyEntity.setStatus("RECEIVED");
             createdHistoryEntity = repository.save(historyEntity);
 
@@ -92,7 +92,7 @@ public class HistoryServiceImpl implements HistoryService {
 
         BookEntity book = bookRepository.findByTitle(historyModel.getTitle()).orElse(null);
 
-        if (book == null) {
+        if (book != null) {
             historyEntity.setStatus("RECEIVED");
             createdHistoryEntity = repository.save(historyEntity);
 

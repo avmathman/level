@@ -18,9 +18,4 @@ public class HistoryCreateDto {
      * The book likes.
      */
     private int likes;
-
-    /**
-     * The book status.
-     */
-    private String status;
 }
