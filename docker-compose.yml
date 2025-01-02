@@ -3,11 +3,11 @@ version: '3'
 networks:
   jpoint_level_network:
     driver: bridge
-#    ipam:
-#      driver: default
-#      config:
-#        - subnet: 172.19.0.0/24
-#          gateway: 172.19.0.1
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.19.0.0/24
+          gateway: 172.19.0.1
 
 services:
   isolation-level-app:
@@ -23,6 +23,7 @@ services:
 #      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
     depends_on:
       - postgres
+    container_name: level-isolation-level-app
     networks:
       - jpoint_level_network
 
@@ -32,7 +33,7 @@ services:
     networks:
       - jpoint_level_network
     hostname: zookeeper
-    container_name: zookeeper
+    container_name: level-zookeeper
     ports:
       - "2181:2181"
     environment:
@@ -45,7 +46,7 @@ services:
     networks:
       - jpoint_level_network
     hostname: broker
-    container_name: broker
+    container_name: level-broker
     depends_on:
       - zookeeper
     ports:
@@ -78,7 +79,7 @@ services:
     networks:
       - jpoint_level_network
     hostname: kafka-lag-exporter
-    container_name: kafka-lag-exporter
+    container_name: level-kafka-lag-exporter
     ports:
       - 8000:8000
     volumes:
@@ -91,7 +92,7 @@ services:
     networks:
       - jpoint_level_network
     hostname: cadvisor
-    container_name: cadvisor
+    container_name: level-cadvisor
     volumes:
       - /var/run:/var/run:rw
       - /sys:/sys:ro
@@ -105,11 +106,11 @@ services:
     networks:
       - jpoint_level_network
     hostname: prometheus
-    container_name: prometheus
+    container_name: level-prometheus
     ports:
       - "9090:9090"
     volumes:
-      - /home/abe/Desktop/Projects/zStorage/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - C:/aPersonal/level/volumes/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
 
   grafana:
     profiles: [all]
@@ -117,11 +118,11 @@ services:
     networks:
       - jpoint_level_network
     hostname: grafana
-    container_name: grafana
+    container_name: level-grafana
     ports:
       - "3000:3000"
     volumes:
-      - /home/abe/Desktop/Projects/zStorage/grafana/storage:/var/lib/grafana
+      - C:/aPersonal/level/volumes/grafana/storage:/var/lib/grafana
 
   postgres:
     profiles: [all, postgres]
@@ -129,7 +130,7 @@ services:
     networks:
       - jpoint_level_network
     hostname: postgres
-    container_name: postgres-level
+    container_name: level-postgres
     ports:
       - 5432:5432
     environment:
@@ -137,14 +138,14 @@ services:
       POSTGRES_PASSWORD: password
       POSTGRES_DB: database
 
-  speaker-app:
-    profiles: [all]
-    container_name: speaker-app
-    build:
-      context: .
-      dockerfile: Dockerfile
-    networks:
-      - jpoint_level_network
-    hostname: speaker-app
-    ports:
-      - "8080:8080"
+#  speaker-app:
+#    profiles: [all]
+#    container_name: level-speaker-app
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    networks:
+#      - jpoint_level_network
+#    hostname: speaker-app
+#    ports:
+#      - "8080:8080"
