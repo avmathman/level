@@ -56,6 +56,9 @@ dependencies {
 
 	// Test dependencies
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.20.4'
+	testImplementation group: 'io.zonky.test', name: 'embedded-database-spring-test', version: '2.5.0'
+
 }
 
 tasks.named('bootBuildImage') {
