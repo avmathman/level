@@ -37,84 +37,20 @@ public class HistoryServiceImpl implements HistoryService {
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public HistoryModel createHistoryReadCommitted(HistoryModel historyModel) {
-        HistoryEntity historyEntity = mapper.modelToEntity(historyModel);
-        HistoryEntity createdHistoryEntity = null;
-
-        BookEntity book = bookRepository.findByTitle(historyModel.getTitle()).orElse(null);
-
-        if (book != null) {
-            historyEntity.setStatus("RECEIVED");
-            createdHistoryEntity = repository.save(historyEntity);
-
-            book.setLikes(book.getLikes() + historyModel.getLikes());
-            bookRepository.save(book);
-
-            log.info("{} likes added to {}", historyModel.getLikes(), book.getAuthor());
-        } else {
-            log.warn("Book with title {} not found", historyModel.getTitle());
-
-            historyEntity.setStatus("ORPHANED");
-            createdHistoryEntity = repository.save(historyEntity);
-        }
-
-        return mapper.entityToModel(repository.save(createdHistoryEntity));
+        return this.storeHistoryAndAddBookLikes(historyModel);
     }
 
     @Override
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     public HistoryModel createHistoryRepeatableRead(HistoryModel historyModel) {
-        HistoryEntity historyEntity = mapper.modelToEntity(historyModel);
-        HistoryEntity createdHistoryEntity = null;
-
-        BookEntity book = bookRepository.findByTitle(historyModel.getTitle()).orElse(null);
-
-        if (book != null) {
-            historyEntity.setStatus("RECEIVED");
-            createdHistoryEntity = repository.save(historyEntity);
-
-            book.setLikes(book.getLikes() + historyModel.getLikes());
-            bookRepository.save(book);
-
-            log.info("{} likes added to {}", historyModel.getLikes(), book.getAuthor());
-        } else {
-            log.warn("Book with title {} not found", historyModel.getTitle());
-
-            historyEntity.setStatus("ORPHANED");
-            createdHistoryEntity = repository.save(historyEntity);
-        }
-
-        return mapper.entityToModel(repository.save(createdHistoryEntity));
+        return this.storeHistoryAndAddBookLikes(historyModel);
     }
 
     @Override
     @Transactional(isolation = Isolation.SERIALIZABLE)
     @Retryable(value = CannotAcquireLockException.class, maxAttempts = 5, backoff=@Backoff(delay = 1000))
     public HistoryModel createHistorySerializable(HistoryModel historyModel) {
-        HistoryEntity historyEntity = mapper.modelToEntity(historyModel);
-        HistoryEntity createdHistoryEntity = null;
-
-        BookEntity book = bookRepository.findByTitle(historyModel.getTitle()).orElse(null);
-
-        if (book != null) {
-            historyEntity.setStatus("RECEIVED");
-            createdHistoryEntity = repository.save(historyEntity);
-
-            try {
-                book.setLikes(book.getLikes() + historyModel.getLikes());
-                bookRepository.save(book);
-            } catch (Exception e) {
-                log.error(e.getMessage());
-            }
-
-            log.info("{} likes added to {}", historyModel.getLikes(), book.getAuthor());
-        } else {
-            log.warn("Book with title {} not found", historyModel.getTitle());
-
-            historyEntity.setStatus("ORPHANED");
-            createdHistoryEntity = repository.save(historyEntity);
-        }
-
-        return mapper.entityToModel(repository.save(createdHistoryEntity));
+        return this.storeHistoryAndAddBookLikes(historyModel);
     }
 
     @Override
@@ -130,5 +66,29 @@ public class HistoryServiceImpl implements HistoryService {
     @Override
     public void deleteAllHistory() {
         repository.deleteAll();
+    }
+
+    private HistoryModel storeHistoryAndAddBookLikes(HistoryModel historyModel) {
+        HistoryEntity historyEntity = mapper.modelToEntity(historyModel);
+        HistoryEntity createdHistoryEntity = null;
+
+        BookEntity book = bookRepository.findByTitle(historyModel.getTitle()).orElse(null);
+
+        if (book != null) {
+            historyEntity.setStatus("RECEIVED");
+            createdHistoryEntity = repository.save(historyEntity);
+
+            book.setLikes(book.getLikes() + historyModel.getLikes());
+            bookRepository.save(book);
+
+            log.info("{} likes added to {}", historyModel.getLikes(), book.getAuthor());
+        } else {
+            log.warn("Book with title {} not found", historyModel.getTitle());
+
+            historyEntity.setStatus("ORPHANED");
+            createdHistoryEntity = repository.save(historyEntity);
+        }
+
+        return mapper.entityToModel(repository.save(createdHistoryEntity));
     }
 }
